@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<head>
+
+   <!-- import google fonts -->
+   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+   <link rel="stylesheet" type="text/css" href="DFAChecker.css">
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<title>DFA Checker</title>
+
+</head>
+
+<body id="body">
+	<div class="title">
+		<h1>DFA Checker</h1>
+	</div>
+	<svg id="stringCanvas" width="900" height="20">
+	</svg>
+	<svg id="canvas" onclick="clickHandler(event)" width="900" height="350">
+		<defs>
+        	<marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
+          		<path d="M0,0 L0,6 L9,3 z" fill="#A9A9A9" />
+        	</marker>
+    	</defs>
+	</svg>
+	<div class="bottom">
+		<button id="add" type="button" class="btn" onclick="setAddState()">Add States</button>
+		 &nbsp; &nbsp;
+		<button type="button" class="btn" onclick="setRemove()">Remove States</button>
+		 &nbsp; &nbsp;
+		<button type="button" class="btn" onclick="setAddArc()">Add Arcs</button>
+		 &nbsp; &nbsp;
+		<button type="button" class="btn" onclick="setRemoveArcs()">Remove Arcs</button>
+		 &nbsp; &nbsp;
+		 <input type="text" id="input" value= "Enter String to Test"
+		 onblur="if (this.value == '') {this.value = 'Enter String to Test';}" 
+		 onfocus="if (this.value == 'Enter String to Test') {this.value = '';}" />
+		 <button type="button" class="btn" onclick="getInput()">Submit</button>
+		<p id="message"></p>
+		 
+	</div>
+	      <!-- load the javascript -->
+   <script type="text/javascript" src="DFAChecker.js"></script>
+</body>
