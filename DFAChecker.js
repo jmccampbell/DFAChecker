@@ -7,6 +7,7 @@ var y2;
 var downTarget;
 var stateIndex=0;
 var stateArcs={};
+var accepting=[];
 
 function setAddArc(){
 	currentCase = "AddArc";
@@ -32,6 +33,12 @@ function setRemoveArcs() {
 	message.textContent = "Click and drag from one state to another to remove arcs form your DFA";
 }
 
+function setAcceptState() {
+	currentCase = "Accept";
+	var message = document.getElementById("message");
+	message.textContent = "Click on state(s) to make them accepting";
+}
+
 function getInput(){
 	var clear = document.getElementById("stringText");
 	if (clear != undefined){
@@ -43,7 +50,17 @@ function getInput(){
 	var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 	g.setAttribute("id", "stringText");
 	var id = 0;
-	var x = 400;
+	var x = 390;
+	var arrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
+	arrow.setAttribute("id", "arrow");
+	arrow.setAttribute("x", x);
+	arrow.setAttribute("y", 15);
+	arrow.setAttribute("font-family", "sans-serif");
+	arrow.setAttribute("font-size", "16px");
+	arrow.setAttribute("fill", "#A9A9A9");
+	arrow.textContent = "-->"
+	g.appendChild(arrow);
+	x += 30;
 	for (var i = 0; i < characters.length; i++){
 		var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 		text.setAttribute("id", "text"+id);
@@ -62,18 +79,91 @@ function getInput(){
 }
 
 function runString(characters){
-	var firstChar = document.getElementById("text0");
-	firstChar.setAttribute("fill", "#FF3B3F");
-	var firstState = document.getElementById("0");
-	firstState.childNodes.item(0).setAttribute("fill", "#FF3B3F");
-	var nextState = findNextState(0, characters[0]);
-	console.log(nextState);
+		var currG = document.getElementById("0");
+		var currState = currG.childNodes.item(0);
+		var arrow = document.getElementById("arrow");
+		var time = 0;
+		lightUp(currState, arrow, 0,  time);
+		time += 2000;
+		unLight(currState, arrow, 0,  time);
+        time += 2000;
+        var next = findNextState(currState.parentNode.getAttribute("id"), characters[0]);
+        var nextState = next[0];
+        var currArc = next[1].parentNode.childNodes.item(0);
+        nextState = nextState.childNodes.item(0);
+        currState = nextState;
+	for (var i = 1; i <= characters.length; i++){
+		var stateId = currState.parentNode.getAttribute("id");
+		currChar = document.getElementById("text"+(i-1));
+		lightUp(currState, currChar, currArc, time);
+		time += 2000;
+		unLight(currState, currChar, currArc, time);
+        next = findNextState(stateId, characters[i]);
+		if (next != undefined){
+			nextState = next[0];
+        	var nextArc = next[1].parentNode.childNodes.item(0);
+			nextState = nextState.childNodes.item(0);
+        	currState = nextState;
+        }
+        if (nextArc != undefined){
+        	currArc = nextArc;
+        }
+        time += 2000;
+	}
+	evaluate(currState.parentNode.getAttribute("id"), time-2000);
+}
+
+function evaluate(currState, time) {
+	console.log(accepting);
+	var isAccept = (accepting.indexOf(currState) != -1)
+	console.log(isAccept);
+	var stringText = document.getElementById("stringText");
+	var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+	text.setAttribute("id", "evaluation");
+	text.setAttribute("x", 395);
+	text.setAttribute("y", 15);
+	text.setAttribute("font-family", "sans-serif");
+	text.setAttribute("font-size", "16px");
+	text.setAttribute("fill", "#FF3B3F");
+	if (isAccept){
+		text.textContent = "ACCEPTED";
+	} else {
+		text.textContent = "REJECTED";
+	}
+	setTimeout(function() {
+		stringText.innerHTML = "";
+		stringText.appendChild(text);
+	}, time);
+}
+
+function lightUp(stateToLight, charToLight, arcToLight, time){
+	setTimeout(function () {
+			charToLight.setAttribute("fill", "#FF3B3F");
+			stateToLight.setAttribute("fill", "#FF3B3F");
+			if (typeof arcToLight == 'object') {
+				arcToLight.setAttribute("marker-end", "url(#arrowRed)");
+				arcToLight.setAttribute("stroke", "#FF3B3F");
+			} 
+		}, time);
+}
+
+function unLight(stateToUnLight, charToUnLight, arcToUnLight, time){
+	setTimeout(function () {
+               charToUnLight.setAttribute("fill", "#A9A9A9");
+               stateToUnLight.setAttribute("fill", "#CAEBF2");
+               if (typeof arcToUnLight == 'object') {
+               		arcToUnLight.setAttribute("marker-end", "url(#arrow)");
+               		arcToUnLight.setAttribute("stroke", "#A9A9A9");
+               }
+            }, time);
 }
 
 function findNextState(currState, nextChar){
 	var arcs = stateArcs[currState];
 	var arcOptions = [];
 	var result;
+	console.log("currState: ", currState);
+	console.log(" arcs: ",arcs);
 	for (var i = 0; i < arcs.length; i++){
 		var arcStates = arcs[i].split("");
 		if (arcStates[0] == currState){
@@ -85,10 +175,16 @@ function findNextState(currState, nextChar){
 		var parent = document.getElementById(arcOptions[i]);
 		var currArc = parent.childNodes.item(1);
 		var arcId = currArc.textContent;
+		console.log("nextChar: ", nextChar);
+		console.log("arcId: ", arcId);
 		if (arcId == nextChar){
-			result = document.getElementById(currStates[1]);
+			var resultState = document.getElementById(currStates[1]);
+			result = [resultState, currArc];
 		}
 	}
+
+	console.log(" nextState: ", result);
+	console.log("----------------------");
 	return result;
 	
 }
@@ -138,6 +234,25 @@ function clickHandler(e) {
         		}
     		});
 		}
+	case "Accept":
+        	var targetElement = event.target || event.srcElement;
+        	if ((targetElement.tagName == "circle" || targetElement.tagName == "text")){
+        		if (targetElement.parentNode.childNodes.length < 4){
+        			console.log("yo");
+        			var g = targetElement.parentNode;
+        			var cx = targetElement.getAttribute("cx");
+        			var cy = targetElement.getAttribute("cy");
+        			var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    				circle.setAttribute("cx",cx);
+					circle.setAttribute("cy",cy);
+					circle.setAttribute("r",17);
+					circle.setAttribute("fill", "none");
+					circle.setAttribute("stroke", "#A9A9A9");
+					g.insertBefore(circle, g.childNodes.item(1));
+					accepting.push(g.getAttribute("id"));
+					console.log(accepting);
+				}
+        	}
 
 	break;
 	
@@ -249,6 +364,7 @@ function mouseUpHandler(e) {
 			} catch(err) {}
 	}
 }
+
 
 function drawArc(cx, cy, targetElement) {
 	var toId = targetElement.parentNode.getAttribute("id");

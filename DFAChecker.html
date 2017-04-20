@@ -20,12 +20,17 @@
 	<svg id="canvas" onclick="clickHandler(event)" width="900" height="350">
 		<defs>
         	<marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
-          		<path d="M0,0 L0,6 L9,3 z" fill="#A9A9A9" />
+          		<path id ="arrowhead" d="M0,0 L0,6 L9,3 z" fill="#A9A9A9" />
+        	</marker>
+        	<marker id="arrowRed" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth" viewBox="0 0 20 20">
+          		<path id ="arrowhead" d="M0,0 L0,6 L9,3 z" fill="#FF3B3F" />
         	</marker>
     	</defs>
 	</svg>
 	<div class="bottom">
 		<button id="add" type="button" class="btn" onclick="setAddState()">Add States</button>
+		&nbsp; &nbsp;
+		<button type="button" class="btn" onclick="setAcceptState()">Make Accepting States</button>
 		 &nbsp; &nbsp;
 		<button type="button" class="btn" onclick="setRemove()">Remove States</button>
 		 &nbsp; &nbsp;
