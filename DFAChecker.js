@@ -1,11 +1,12 @@
 var currentCase = "none";
 var canvas = document.getElementById("canvas");
-var x1;
-var x2;
-var y1;
+var x1;				//several of these are Very Bad Global Variables
+var x2;				//I have made peace with the Code Structure Gods
+var y1;				//and come to terms with my sins
 var y2;
 var downTarget;
 var stateIndex=0;
+var startState;
 var stateArcs={};
 var accepting=[];
 
@@ -79,7 +80,11 @@ function getInput(){
 }
 
 function runString(characters){
-		var currG = document.getElementById("0");
+		var currG = startState;
+		if (currG == undefined){
+			alert("No start state. Start state must have content \"0\"");
+			return;
+		}
 		var currState = currG.childNodes.item(0);
 		var arrow = document.getElementById("arrow");
 		var time = 0;
@@ -88,6 +93,10 @@ function runString(characters){
 		unLight(currState, arrow, 0,  time);
         time += 2000;
         var next = findNextState(currState.parentNode.getAttribute("id"), characters[0]);
+        if (next == undefined){
+        	evaluate(-1, time);
+        	return;
+        }
         var nextState = next[0];
         var currArc = next[1].parentNode.childNodes.item(0);
         nextState = nextState.childNodes.item(0);
@@ -99,24 +108,24 @@ function runString(characters){
 		time += 2000;
 		unLight(currState, currChar, currArc, time);
         next = findNextState(stateId, characters[i]);
+        console.log("next: ", next);
 		if (next != undefined){
 			nextState = next[0];
         	var nextArc = next[1].parentNode.childNodes.item(0);
 			nextState = nextState.childNodes.item(0);
         	currState = nextState;
+        } else {
+        	evaluate(-1, time+4000);
         }
-        if (nextArc != undefined){
-        	currArc = nextArc;
-        }
+        currArc = nextArc;
         time += 2000;
 	}
 	evaluate(currState.parentNode.getAttribute("id"), time-2000);
 }
 
+
 function evaluate(currState, time) {
-	console.log(accepting);
 	var isAccept = (accepting.indexOf(currState) != -1)
-	console.log(isAccept);
 	var stringText = document.getElementById("stringText");
 	var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 	text.setAttribute("id", "evaluation");
@@ -162,8 +171,6 @@ function findNextState(currState, nextChar){
 	var arcs = stateArcs[currState];
 	var arcOptions = [];
 	var result;
-	console.log("currState: ", currState);
-	console.log(" arcs: ",arcs);
 	for (var i = 0; i < arcs.length; i++){
 		var arcStates = arcs[i].split("");
 		if (arcStates[0] == currState){
@@ -175,16 +182,15 @@ function findNextState(currState, nextChar){
 		var parent = document.getElementById(arcOptions[i]);
 		var currArc = parent.childNodes.item(1);
 		var arcId = currArc.textContent;
-		console.log("nextChar: ", nextChar);
 		console.log("arcId: ", arcId);
+		console.log("nextChar: ", nextChar);
 		if (arcId == nextChar){
+			console.log("here");
 			var resultState = document.getElementById(currStates[1]);
 			result = [resultState, currArc];
 		}
 	}
 
-	console.log(" nextState: ", result);
-	console.log("----------------------");
 	return result;
 	
 }
@@ -222,6 +228,13 @@ function clickHandler(e) {
         			}
         			var n = parseInt(stateId);
         			delete stateArcs[n];
+        			if(targetElement.parentNode.childNodes.item(1).textContent == "0"){
+        				startState = undefined;
+        			}
+        			var acceptIndex = accepting.indexOf(stateId);
+        			if (acceptIndex > -1){
+        				accepting.splice(acceptIndex, 1);
+        			}
         			targetElement.parentNode.remove();
         			
         		}
@@ -234,11 +247,12 @@ function clickHandler(e) {
         		}
     		});
 		}
+		break;
+		
 	case "Accept":
         	var targetElement = event.target || event.srcElement;
         	if ((targetElement.tagName == "circle" || targetElement.tagName == "text")){
         		if (targetElement.parentNode.childNodes.length < 4){
-        			console.log("yo");
         			var g = targetElement.parentNode;
         			var cx = targetElement.getAttribute("cx");
         			var cy = targetElement.getAttribute("cy");
@@ -250,7 +264,7 @@ function clickHandler(e) {
 					circle.setAttribute("stroke", "#A9A9A9");
 					g.insertBefore(circle, g.childNodes.item(1));
 					accepting.push(g.getAttribute("id"));
-					console.log(accepting);
+					console.log("accepting: ",accepting);
 				}
         	}
 
@@ -362,6 +376,7 @@ function mouseUpHandler(e) {
 			try {
 				removeArc.remove();
 			} catch(err) {}
+			break;
 	}
 }
 
@@ -485,6 +500,9 @@ function draw(e) {
 	stateArcs[stateIndex] = [];
 	stateIndex += 1;
 	svg.appendChild(g);
+	if (state == "0"){
+    	startState = g;
+    }
    
 }
 
