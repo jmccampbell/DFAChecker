@@ -40,6 +40,12 @@ function setAcceptState() {
 	message.textContent = "Click on state(s) to make them accepting";
 }
 
+function setInput(){
+	currentCase = "Input";
+	var message = document.getElementById("message");
+	message.textContent = "Type string and click submit to evaluate";
+}
+
 function getInput(){
 	var clear = document.getElementById("stringText");
 	if (clear != undefined){
@@ -108,14 +114,16 @@ function runString(characters){
 		time += 2000;
 		unLight(currState, currChar, currArc, time);
         next = findNextState(stateId, characters[i]);
-        console.log("next: ", next);
 		if (next != undefined){
 			nextState = next[0];
         	var nextArc = next[1].parentNode.childNodes.item(0);
 			nextState = nextState.childNodes.item(0);
         	currState = nextState;
-        } else {
-        	evaluate(-1, time+4000);
+        } else if (next == undefined && i < characters.length) {
+        	setTimeout(function() {
+				alert("Invalid DFA");
+			}, time);
+			return;
         }
         currArc = nextArc;
         time += 2000;
@@ -173,21 +181,25 @@ function findNextState(currState, nextChar){
 	var result;
 	for (var i = 0; i < arcs.length; i++){
 		var arcStates = arcs[i].split("");
+		console.log("arcStates: ", arcStates);
 		if (arcStates[0] == currState){
+			console.log("pushed: ",arcs[i]);
 			arcOptions.push(arcs[i]);
 		}
 	}
 	for (i = 0; i < arcOptions.length; i++){
+		console.log("currentOption: ", arcOptions[i]);
 		var currStates = arcOptions[i].split("");
 		var parent = document.getElementById(arcOptions[i]);
 		var currArc = parent.childNodes.item(1);
-		var arcId = currArc.textContent;
-		console.log("arcId: ", arcId);
-		console.log("nextChar: ", nextChar);
-		if (arcId == nextChar){
-			console.log("here");
-			var resultState = document.getElementById(currStates[1]);
-			result = [resultState, currArc];
+		var arcId = currArc.textContent.split(/\s*,\s*/);
+		for( var j = 0; j < arcId.length; j++){
+			console.log("arcId: ", arcId," nextChar: ", nextChar);
+			if (arcId[j] == nextChar){
+				console.log("yay")
+				var resultState = document.getElementById(currStates[1]);
+				result = [resultState, currArc];
+			}
 		}
 	}
 
@@ -211,6 +223,7 @@ function clickHandler(e) {
         			var thisArcs = stateArcs[stateId];
         			for (var i = 0; i < thisArcs.length; i++) {
         				var arcId = thisArcs[i];
+        				console.log("arcId: ", arcId);
         				//states
         				var toRemove = document.getElementById(arcId);
         				toRemove.remove();
@@ -384,82 +397,80 @@ function mouseUpHandler(e) {
 function drawArc(cx, cy, targetElement) {
 	var toId = targetElement.parentNode.getAttribute("id");
 	var fromId = downTarget.parentNode.getAttribute("id");
-	var toList = stateArcs[toId];							//add arc Id to stateArcs
-	toList[toList.length] = fromId+toId;
-	stateArcs[toId] = toList;
 	var character = prompt("Please enter the character associated with this arc:")
-    if (character == null){
-    	return;
-    }
-	var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-	var arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
-	/*some of this is math, some of this is trial and error*/
-	var x1 = (cx - (1)*20)+10;
-	var fracR = Math.pow(((3/4)*20), 2);
-	var sqrt = Math.sqrt(Math.pow(20, 2)-fracR);
-	var y1 = (cy + sqrt)-20;
-	var x2 = (cx + (1)*20)-10;
-	var y2 = y1;
-	var midX = ((x1+x2)/2);
-	var midY = ((y1+y2)/2)-40;
-	arc.setAttribute("d", "M "+x1+" "+y1+" "+"A 20 20 0 1 1 "+x2+" "+y2);
-	arc.setAttribute("marker-end", "url(#arrow)");
-	arc.setAttribute("fill", "none");
-	arc.setAttribute("stroke", "#A9A9A9");
-	arc.setAttribute("stroke-width", "2");
-	var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-	text.setAttribute("x", midX);
-    text.setAttribute("y", midY);
-    text.setAttribute("font-family", "sans-serif");
-	text.setAttribute("font-size", "14px");
-	text.setAttribute("fill", "#FF3B3F");
-	text.textContent = character;
-	g.appendChild(arc);
-	g.appendChild(text);
-	g.setAttribute("id", (fromId+toId));
-	var svg = document.getElementById("canvas");
-	svg.appendChild(g);
+    if (character != null){
+    	var toList = stateArcs[toId];							//add arc Id to stateArcs
+		toList[toList.length] = fromId+toId;
+		stateArcs[toId] = toList;
+		var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		var arc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+		/*some of this is math, some of this is trial and error*/
+		var x1 = (cx - (1)*20)+10;
+		var fracR = Math.pow(((3/4)*20), 2);
+		var sqrt = Math.sqrt(Math.pow(20, 2)-fracR);
+		var y1 = (cy + sqrt)-20;
+		var x2 = (cx + (1)*20)-10;
+		var y2 = y1;
+		var midX = ((x1+x2)/2);
+		var midY = ((y1+y2)/2)-40;
+		arc.setAttribute("d", "M "+x1+" "+y1+" "+"A 20 20 0 1 1 "+x2+" "+y2);
+		arc.setAttribute("marker-end", "url(#arrow)");
+		arc.setAttribute("fill", "none");
+		arc.setAttribute("stroke", "#A9A9A9");
+		arc.setAttribute("stroke-width", "2");
+		var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+		text.setAttribute("x", midX);
+    	text.setAttribute("y", midY);
+    	text.setAttribute("font-family", "sans-serif");
+		text.setAttribute("font-size", "14px");
+		text.setAttribute("fill", "#FF3B3F");
+		text.textContent = character;
+		g.appendChild(arc);
+		g.appendChild(text);
+		g.setAttribute("id", (fromId+toId));
+		var svg = document.getElementById("canvas");
+		svg.appendChild(g);
+	}
 }
 
 function drawLine(x1, y1, x2, y2, targetElement) {
 	var toId = targetElement.parentNode.getAttribute("id"); //find Ids of connected nodes
 	var fromId = downTarget.parentNode.getAttribute("id");
-	var toList = stateArcs[toId];							//add arc Id to stateArcs
-	toList[toList.length] = fromId+toId;
-	var fromList = stateArcs[fromId];
-	fromList[fromList.length] = fromId+toId;
-	stateArcs[toId] = toList;
-	stateArcs[fromId] = fromList;
 	var character = prompt("Please enter the character associated with this arc:")
-    if (character == null){
-    	return;
+    if (character != null){
+		var toList = stateArcs[toId];							//add arc Id to stateArcs
+		toList[toList.length] = fromId+toId;
+		var fromList = stateArcs[fromId];
+		fromList[fromList.length] = fromId+toId;
+		stateArcs[toId] = toList;
+		stateArcs[fromId] = fromList;
+		var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+		var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		var dist = Math.sqrt(Math.pow(y1-y2, 2) + Math.pow(x1-x2, 2)); //determine coordinates of start and end of line
+		var xOffset = ((40*(x1-x2)) / dist);
+		var yOffset = ((40*(y1-y2)) / dist);
+   		line.setAttribute("x1", this.x1);
+    	line.setAttribute("y1", this.y1);
+    	line.setAttribute("x2", this.x2+xOffset);
+    	line.setAttribute("y2", this.y2+yOffset);
+    	line.setAttribute("stroke", "#A9A9A9");
+    	line.setAttribute("stroke-width", "2");
+    	line.setAttribute("marker-end", "url(#arrow)");
+    	var textX = ((x1+x2)/2);						//determine coordinates of text
+    	var textY = ((y1+y2)/2);
+    	var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    	text.setAttribute("x", textX);
+    	text.setAttribute("y", textY);
+    	text.setAttribute("font-family", "sans-serif");
+		text.setAttribute("font-size", "14px");
+		text.setAttribute("fill", "#FF3B3F");
+		text.textContent = character;
+    	g.setAttribute("id", (fromId + toId));
+    	g.appendChild(line);
+    	g.appendChild(text);
+    	var svg = document.getElementById("canvas");
+    	svg.insertBefore(g, svg.firstChild);
     }
-	var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-	var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-	var dist = Math.sqrt(Math.pow(y1-y2, 2) + Math.pow(x1-x2, 2)); //determine coordinates of start and end of line
-	var xOffset = ((40*(x1-x2)) / dist);
-	var yOffset = ((40*(y1-y2)) / dist);
-    line.setAttribute("x1", this.x1);
-    line.setAttribute("y1", this.y1);
-    line.setAttribute("x2", this.x2+xOffset);
-    line.setAttribute("y2", this.y2+yOffset);
-    line.setAttribute("stroke", "#A9A9A9");
-    line.setAttribute("stroke-width", "2");
-    line.setAttribute("marker-end", "url(#arrow)");
-    var textX = ((x1+x2)/2);						//determine coordinates of text
-    var textY = ((y1+y2)/2);
-    var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    text.setAttribute("x", textX);
-    text.setAttribute("y", textY);
-    text.setAttribute("font-family", "sans-serif");
-	text.setAttribute("font-size", "14px");
-	text.setAttribute("fill", "#FF3B3F");
-	text.textContent = character;
-    g.setAttribute("id", (fromId + toId));
-    g.appendChild(line);
-    g.appendChild(text);
-    var svg = document.getElementById("canvas");
-    svg.insertBefore(g, svg.firstChild);
 }
 
 function draw(e) {
