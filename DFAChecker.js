@@ -110,6 +110,7 @@ function getInput(){
 //controller function that steps through animation of string passing through DFA
 function runString(characters){
 		var currG = startState;
+		console.log("startState: ", startState);
 		if (currG == undefined){
 			alert("No start state. Start state must have content \"0\"");
 			return;
@@ -275,9 +276,12 @@ function clickHandler(e) {
         			var n = parseInt(stateId);
         			delete stateArcs[n];
         			//update startState if current startState is removed
-        			if(targetElement.parentNode.childNodes.item(1).textContent == "0"){
+        			if(targetElement.parentNode.childNodes.item(1).textContent == "0"
+        			|| targetElement.parentNode.childNodes.item(2).textContent == "0"){
         				startState = undefined;
+        				console.log("here");
         			}
+        			console.log("startState after remove: ", startState);
         			//update list of accepting states, if accepting state is removed
         			var acceptIndex = accepting.indexOf(stateId);
         			if (acceptIndex > -1){
@@ -405,7 +409,7 @@ function drawArc(cx, cy, targetElement) {
 	// get Id of state on which to draw the arc
 	var toId = targetElement.parentNode.getAttribute("id");
 	var fromId = downTarget.parentNode.getAttribute("id");
-	var character = prompt("Please enter the character associated with this arc:");
+	var character = prompt("Please enter one or more characters associated with this arc (multiple characters separated by commas):");
 	//draw arc only if user enters some arc value
     if (character != null){
     	var toList = stateArcs[toId];							//add arc Id to stateArcs
@@ -446,7 +450,7 @@ function drawArc(cx, cy, targetElement) {
 function drawLine(x1, y1, x2, y2, targetElement) {
 	var toId = targetElement.parentNode.getAttribute("id"); //find Ids of connected nodes
 	var fromId = downTarget.parentNode.getAttribute("id");
-	var character = prompt("Please enter the character associated with this arc:")
+	var character = prompt("Please enter one or more characters associated with this arc (multiple characters separated by commas):");
 	//only draw arc if user enters some arc value
     if (character != null){
 		var toList = stateArcs[toId];							//add arc Id to stateArcs

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<head>
+
+   <!-- import google fonts -->
+   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+   <link rel="stylesheet" type="text/css" href="DFAChecker.css">
+   	      <!-- load the javascript -->
+   <script type="text/javascript" src="DFAChecker.js"></script>
+
+<title>About DFAs</title>
+
+</head>
+<nav>
+	<a href="DFAChecker.html">DFA Checker</a>
+</nav>
+
+<body id="body">
+	<div class="title">
+		<h1 id="about">About Deterministic</h1>
+		<h1 id="about">Finite Automata (DFAs)</h1>
+	</div>
+	<br></br>
+	<p class="middleText">A determinist finite automaton (here referred
+	to as a DFA), is a type of finite state machine that takes an input of a string
+	of characters and rejects or accepts that string. What makes DFAs "deterministic"
+	is that each string has one unique way of passing through the DFA. A DFA is shown
+	as a number of circles, each representing a state, and arrows, representing
+	arcs between states. A given DFA has a finite alphabet, and each state in that
+	DFA must have an arc associated with each character in that alphabet, in order to
+	guarantee that there will be one unique path through the DFA for each valid string.</p>
+	<figure>
+		<img src="DFA1.jpg">
+		<p><i>This DFA accepts all strings with an alphabet including a's and b's 
+		that start with <span>a</span>, and rejects all such strings that start with <span>b</span>.</i></p>
+	</figure>
+	<p class="middleText">When a string passes through a DFA, it begins in the DFAs start
+	state (the start state of DFAs shown here is always labeled "0". The string then passes to the next state based on its first character and
+	the arcs leading from the first state. The string follows the arc that corresponds
+	to its first character to a new state. The process is then repeated at that new state
+	with the second character in the string, and continues until there are no more
+	characters. Once the DFA has examined every character, it can make a determination
+	about whether or not to accept the string. This determination is made based on the
+	state the string occupies after its final character. If a strings ends in an accepting
+	state, indicated here with a double circle, it is accepted. Otherwise, it is rejected.
+	See a more complicated example below. </p>
+	<figure>
+		<img src="DFA2.jpg">
+		<p><i>This DFA accepts all strings with an even number of both <span>1's</span> and <span>0's</span>.
+		For example, the string <span>1001</span> moves from state <span>0</span> to state <span>1</span>, from state <span>1</span> to state
+		<span>3</span>, from state <span>3</span> to state <span>1</span>, and finally from state <span>1</span> to state <span>0</span>, where it is accepted.</i></p>
+	</figure>
+	<p class="middleText">As it turns out, every regular language, that is, every language that
+	can be described by the strict rules of a regular expression, can be represented as a DFA 
+	that accepts every string in the language and rejects every string not in the language. 
+	You can construct and test your own DFAs with the DFA Checker:</p>
+	<br>
+	<a href="DFAChecker.html">Go to DFA Checker</a>
+	<br><br><br><br>
+</body>
