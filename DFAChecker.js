@@ -77,7 +77,7 @@ function getInput(){
 	var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 	g.setAttribute("id", "stringText");
 	var id = 0;
-	var x = 390;
+	var x = 430;
 	var arrow = document.createElementNS("http://www.w3.org/2000/svg", "text");
 	arrow.setAttribute("id", "arrow");
 	arrow.setAttribute("x", x);
@@ -167,7 +167,7 @@ function evaluate(currState, time) {
 	var stringText = document.getElementById("stringText");
 	var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 	text.setAttribute("id", "evaluation");
-	text.setAttribute("x", 395);
+	text.setAttribute("x", 440);
 	text.setAttribute("y", 15);
 	text.setAttribute("font-family", "sans-serif");
 	text.setAttribute("font-size", "16px");
